@@ -1,9 +1,11 @@
 # Visualization and Analysis using GeoPandas and Altair
 
-This project involves data visualization and analysis using GeoPandas and Altair to explore taxi trip data in Chicago. The following tasks are implemented:
+This project involves data visualization and analysis using GeoPandas and Altair to explore taxi trip data in Chicago. It creates interactive heatmaps with brush selection functionality, allowing users to explore geographical data by filtering data points interactively. The following tasks are implemented:
 
 
 ## Pre-Requisites
+To use this project, install the required dependencies, download the datasets (Taxi_Trips.csv and chicago.geojson), and run the code in a Jupyter Notebook or your preferred Python IDE.
+
 Before running the code, install the required libraries using the following command:
 ~~~bash
 pip install geopandas altair pandas jupyter
@@ -89,50 +91,60 @@ matrix
 ## Task 4: Interactive Heatmap Visualization Matrix
 Heatmaps are created to visualize trip metrics (Trip_Seconds, Trip_Miles, and Fare) geographically using longitude and latitude.
 
+
 ### **Code 1: Heatmaps for Individual Metrics**
 
 The following heatmaps visualize individual metrics over geographic locations:
-- Trip Seconds (Red Color Scale)
-- Trip Miles (Blue Color Scale)
-- Fare (Green Color Scale)
+- Trip Seconds
+- Trip Miles
+- Fare
 
 Each heatmap utilizes:
 - Binned Longitude and Latitude for grouping data into grid cells.
 - Color intensity to represent the selected metric values.
 - Brushing to allow interactive filtering across multiple heatmaps.
 
-
+A selection interval is defined to allow brushing, which highlights selected data points.
 ~~~bash
-import altair as alt
-
-# Creating a selection interval(for brushing)
 brush = alt.selection_interval()
+~~~
+**Heatmap for Trip_Seconds**
 
-# Heatmap for Trip_Seconds
+This heatmap visualizes trip duration data by color intensity.
+~~~bash
 heatmap_trip_seconds = alt.Chart(gdf).mark_rect().encode(
-    x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),  # Binned x-axis for longitude
-    y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),   # Binned y-axis for latitude
-    color=alt.Color('Trip_Seconds', scale=alt.Scale(scheme='reds')),    # Color intensity based on Trip_Seconds
-    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))  # Adjust opacity based on brush selection
+    x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),
+    y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),
+    color=alt.Color('Trip_Seconds', scale=alt.Scale(scheme='reds')),
+    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))
 ).add_params(brush)
+~~~
+**Heatmap for Trip_Miles**
 
-# Heatmap for Trip_Miles
+This heatmap visualizes the trip distances by color intensity.
+~~~bash
 heatmap_trip_miles = alt.Chart(gdf).mark_rect().encode(
-    x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),  # Binned x-axis for longitude
-    y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),   # Binned y-axis for latitude
-    color=alt.Color('Trip_Miles', scale=alt.Scale(scheme='blues')), # Color intensity based on Trip_Miles
-    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))  # Adjust opacity based on brush selection
+    x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),
+    y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),
+    color=alt.Color('Trip_Miles', scale=alt.Scale(scheme='blues')),
+    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))
 ).add_params(brush)
+~~~
+**Heatmap for Fare**
 
-# Heatmap for Fare
+This heatmap visualizes fare amounts by color intensity.
+~~~bash
 heatmap_fare = alt.Chart(gdf).mark_rect().encode(
-    x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),  # Binned x-axis for longitude
-    y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),   # Binned y-axis for latitude
-    color=alt.Color('Fare', scale=alt.Scale(scheme='greens')),  # Color intensity based on Fare
-    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))  # Adjust opacity based on brush selection
+    x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),
+    y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),
+    color=alt.Color('Fare', scale=alt.Scale(scheme='greens')),
+    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))
 ).add_params(brush)
+~~~
+**Combining Heatmaps**
 
-# Combining all heatmaps for viewing together
+The three heatmaps are combined into a single visualization for side-by-side comparison.
+~~~bash
 heatmap_trip_seconds & heatmap_trip_miles & heatmap_fare
 ~~~
 
@@ -148,33 +160,34 @@ heatmap_trip_seconds & heatmap_trip_miles & heatmap_fare
 This visualization uses Altair's repeat feature to efficiently create a grid of heatmaps comparing each metric against the others.
 
 
+A selection interval is defined to allow brushing, which highlights selected data points.
 ~~~bash
-# Create a selection interval (for brushing)
 brush = alt.selection_interval()
+~~~
+**Heatmap with Repeated Variables**
 
-# Creating the heatmap with repeated variables in both rows and columns
+This heatmap visualizes multiple metrics by placing variables in both rows and columns.
+~~~bash
 heatmap = alt.Chart(gdf).mark_rect().encode(
-    alt.X(alt.repeat("column"), bin=alt.Bin(maxbins=30)),   # Binned x-axis for longitude
-    alt.Y(alt.repeat("row"), bin=alt.Bin(maxbins=30)),  # Binned y-axis for latitude
-    color=alt.Color(alt.repeat("column"), scale=alt.Scale(scheme='reds')),  # Color based on each variable
-    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))  # Adjust opacity based on brush selection
+    alt.X(alt.repeat("column"), bin=alt.Bin(maxbins=30)),
+    alt.Y(alt.repeat("row"), bin=alt.Bin(maxbins=30)),
+    color=alt.Color(alt.repeat("column"), scale=alt.Scale(scheme='reds')),
+    opacity=alt.condition(brush, alt.value(1), alt.value(0.1))
 ).add_params(brush).properties(
     width=150,
     height=150
 ).repeat(
-    row=['Fare', 'Trip_Miles', 'Trip_Seconds'], # Variables for rows
-    column=['Trip_Seconds', 'Trip_Miles', 'Fare']   # Variables for columns
+    row=['Fare', 'Trip_Miles', 'Trip_Seconds'],
+    column=['Trip_Seconds', 'Trip_Miles', 'Fare']
 )
 
 heatmap
 ~~~
 
+**Combining Heatmaps**
+This configuration allows users to compare metrics directly by aligning them in a grid pattern. The brush selection enhances interactivity, making it easier to explore specific data points.
+
 <p>
     <img src="Heatmaps/Combined Heatmap with Repeated Variables.png" alt="Combined Heatmap with Repeated Variables">
 </p>
 
-
-## Usage Instructions
-1. Install the required dependencies.
-2. Download the provided datasets: Taxi_Trips.csv and chicago.geojson.
-3. Run each task code in a Jupyter Notebook or preferred Python IDE.
