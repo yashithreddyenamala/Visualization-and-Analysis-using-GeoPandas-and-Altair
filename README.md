@@ -6,12 +6,18 @@ This project involves data visualization and analysis using GeoPandas and Altair
 ## Pre-Requisites
 Before running the code, install the required libraries using the following command:
 ~~~bash
-pip install geopandas altair pandas
+pip install geopandas altair pandas jupyter
 ~~~
+
+Download the datasets required to do the tasks:
+
+[Taxi Trips Dataset](Datasets/Taxi_Trips.rar)
+
+[Chicago ZIP Code Boundaries Dataset](Datasets/chicago.geojson)
 
 
 ## Task 1: Data Preparation
-The dataset is read into a DataFrame, converted into a GeoDataFrame, and sampled for analysis.
+Import the necessary libraries and load the data:
 ~~~bash
 import pandas as pd
 import geopandas as gpd
@@ -23,31 +29,67 @@ df = pd.read_csv('data/Taxi_Trips.csv')
 geometry = [Point(xy) for xy in zip(df['Pickup Centroid Longitude'], df['Pickup Centroid Latitude'])]
 gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=4326).sample(1000)
 gdf = gdf.rename(columns={"Trip Seconds": "Trip_Seconds", "Trip Miles": "Trip_Miles"})
+~~~
 
+Note that we are renaming certain columns to remove white spaces. To display the first few rows:
+~~~bash
 gdf.head()
 ~~~
 
 
 ## Task 2: Data Joining and Cleaning
-A geographic data file for Chicago is read and merged with the taxi trip data based on spatial location. The Fare column is converted to numeric, and null values are checked.
+Load the Chicago ZIP code boundaries dataset:
 ~~~bash
 chicago = gpd.read_file('data/chicago.geojson')
+~~~
 
+Perform a spatial join between taxi trip data and Chicago ZIP codes to aggregate fare data by ZIP code:
+~~~bash
 joined = gpd.sjoin(gdf, chicago, predicate='within')
 joined['Fare'] = pd.to_numeric(joined['Fare'], errors='coerce')
 joined = joined[['zip', 'Fare']]
 joined = joined.groupby('zip', as_index=False).mean()
 
 print(joined.isna().sum())
+~~~
 
+Merge the aggregated data back with the Chicago ZIP code boundaries:
+~~~bash
 merged = chicago.merge(joined, on='zip')
 ~~~
 
 
-## Task 3: Interactive Heatmap Visualization Matrix
+## Task 3: Creating Linked Views
+Create a basic linked view with scatter plots using Altair:
+~~~bash
+brush = alt.selection_interval()
+
+matrix = alt.Chart(gdf).mark_circle().add_params(brush).encode(
+    alt.X(alt.repeat("column"), type='quantitative'),
+    alt.Y(alt.repeat("row"), type='quantitative'),
+    color=alt.condition(brush, 'Payment Type:N', alt.value('grey')),
+    opacity=alt.condition(brush, alt.value(0.8), alt.value(0.1))
+).properties(
+    width=150,
+    height=150
+).repeat(
+    row=['Fare', 'Trip_Miles', 'Trip_Seconds'],
+    column=['Trip_Seconds', 'Trip_Miles', 'Fare']
+)
+
+matrix
+~~~
+
+<p>
+    <img src="Heatmaps/Altair" alt="Linked View Scatter Plot using Altair">
+</p>
+
+
+
+## Task 4: Interactive Heatmap Visualization Matrix
 Heatmaps are created to visualize trip metrics (Trip_Seconds, Trip_Miles, and Fare) geographically using longitude and latitude.
 
-### Heatmap Code 1: Heatmaps for Individual Metrics
+### **Code 1: Heatmaps for Individual Metrics**
 
 The following heatmaps visualize individual metrics over geographic locations:
 - Trip Seconds (Red Color Scale)
@@ -101,7 +143,7 @@ heatmap_trip_seconds & heatmap_trip_miles & heatmap_fare
 
 
 
-### Heatmap Code 2: Combined Heatmap with Repeated Variables
+### **Code 2: Combined Heatmap with Repeated Variables**
 
 This visualization uses Altair's repeat feature to efficiently create a grid of heatmaps comparing each metric against the others.
 
