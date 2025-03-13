@@ -1,27 +1,53 @@
-# Linked-Visualization
+# Visualization and Analysis using GeoPandas and Altair
+
+This project involves data visualization and analysis using GeoPandas and Altair to explore taxi trip data in Chicago. The following tasks are implemented:
 
 
-This project demonstrates how to create interactive heatmaps using the Altair visualization library. The heatmaps visualize trip data with multiple metrics such as Trip_Seconds, Trip_Miles, and Fare, mapped geographically using longitude and latitude.
-
-
-# Pre-Requisites
-Before running the code, ensure you have the following libraries installed:
+## Pre-Requisites
+Before running the code, install the required libraries using the following command:
 ~~~bash
-pip install altair pandas geopandas
+pip install geopandas altair pandas
 ~~~
 
-# Data Preparation
-The provided code assumes a GeoDataFrame (gdf) containing the following columns:
-- Pickup Centroid Longitude
-- Pickup Centroid Latitude
-- Trip_Seconds
-- Trip_Miles
-- Fare
+
+## Task 1: Data Preparation
+The dataset is read into a DataFrame, converted into a GeoDataFrame, and sampled for analysis.
+~~~bash
+import pandas as pd
+import geopandas as gpd
+import altair as alt
+from shapely.geometry import Point
+~~~
+~~~bash
+df = pd.read_csv('data/Taxi_Trips.csv')
+geometry = [Point(xy) for xy in zip(df['Pickup Centroid Longitude'], df['Pickup Centroid Latitude'])]
+gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=4326).sample(1000)
+gdf = gdf.rename(columns={"Trip Seconds": "Trip_Seconds", "Trip Miles": "Trip_Miles"})
+
+gdf.head()
+~~~
 
 
-# Code Overview
+## Task 2: Data Joining and Cleaning
+A geographic data file for Chicago is read and merged with the taxi trip data based on spatial location. The Fare column is converted to numeric, and null values are checked.
+~~~bash
+chicago = gpd.read_file('data/chicago.geojson')
 
-**Heatmaps for Individual Metrics**
+joined = gpd.sjoin(gdf, chicago, predicate='within')
+joined['Fare'] = pd.to_numeric(joined['Fare'], errors='coerce')
+joined = joined[['zip', 'Fare']]
+joined = joined.groupby('zip', as_index=False).mean()
+
+print(joined.isna().sum())
+
+merged = chicago.merge(joined, on='zip')
+~~~
+
+
+## Task 3: Interactive Heatmap Visualization Matrix
+Heatmaps are created to visualize trip metrics (Trip_Seconds, Trip_Miles, and Fare) geographically using longitude and latitude.
+
+### Heatmap Code 1: Heatmaps for Individual Metrics
 
 The following heatmaps visualize individual metrics over geographic locations:
 - Trip Seconds (Red Color Scale)
@@ -75,7 +101,7 @@ heatmap_trip_seconds & heatmap_trip_miles & heatmap_fare
 
 
 
-**Combined Heatmap with Repeated Variables**
+### Heatmap Code 2: Combined Heatmap with Repeated Variables
 
 This visualization uses Altair's repeat feature to efficiently create a grid of heatmaps comparing each metric against the others.
 
@@ -106,7 +132,7 @@ heatmap
 </p>
 
 
-# Usage Instructions
-1. Load your data into a GeoDataFrame.
-2. Copy the provided code into your Python environment.
-3. Run the code to visualize interactive heatmaps with brushing capabilities.
+## Usage Instructions
+1. Install the required dependencies.
+2. Download the provided datasets: Taxi_Trips.csv and chicago.geojson.
+3. Run each task code in a Jupyter Notebook or preferred Python IDE.
