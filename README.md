@@ -1,5 +1,4 @@
 # Linked-Visualization
-Lab Activity
 
 
 This project demonstrates how to create interactive heatmaps using the Altair visualization library. The heatmaps visualize trip data with multiple metrics such as Trip_Seconds, Trip_Miles, and Fare, mapped geographically using longitude and latitude.
@@ -23,6 +22,7 @@ The provided code assumes a GeoDataFrame (gdf) containing the following columns:
 # Code Overview
 
 **Heatmaps for Individual Metrics**
+
 The following heatmaps visualize individual metrics over geographic locations:
 - Trip Seconds (Red Color Scale)
 - Trip Miles (Blue Color Scale)
@@ -68,14 +68,15 @@ heatmap_fare = alt.Chart(gdf).mark_rect().encode(
 heatmap_trip_seconds & heatmap_trip_miles & heatmap_fare
 ~~~
 
-![](https://drive.google.com/file/d/1Q8-NMUWPh9RyxCnBd1ebK7ardWtcP3Sb/view?usp=sharing)
-
-
+<p>
+  <img src="Heatmaps/Heatmaps for Individual Metrics.png" alt="Heatmap for Individual Metrics">
+</p>
 
 
 
 
 **Combined Heatmap with Repeated Variables**
+
 This visualization uses Altair's repeat feature to efficiently create a grid of heatmaps comparing each metric against the others.
 
 
@@ -100,8 +101,9 @@ heatmap = alt.Chart(gdf).mark_rect().encode(
 heatmap
 ~~~
 
-![](https://drive.google.com/file/d/1cSQzNuo4Rh4FOdQG-7nfnRnwxT2kc76z/view?usp=sharing)
-
+<p>
+    <img src="Heatmaps/Combined Heatmap with Repeated Variables.png" alt="Combined Heatmap with Repeated Variables">
+</p>
 
 
 # Usage Instructions
