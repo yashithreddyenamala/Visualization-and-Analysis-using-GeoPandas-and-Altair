@@ -81,7 +81,7 @@ matrix
 ~~~
 
 <p>
-    <img src="Heatmaps/Altair" alt="Linked View Scatter Plot using Altair">
+    <img src="Heatmaps/Altair.png" alt="Linked View Scatter Plot using Altair">
 </p>
 
 
