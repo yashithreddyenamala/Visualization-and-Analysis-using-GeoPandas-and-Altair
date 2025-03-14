@@ -2,6 +2,10 @@
 
 This project involves data visualization and analysis using GeoPandas and Altair to explore taxi trip data in Chicago. It creates interactive heatmaps with brush selection functionality, allowing users to explore geographical data by filtering data points interactively. The following tasks are implemented:
 
+## Team Members
+1. Yashith Reddy Enamala (yenam@uic.edu)
+2. Nirmal Kumar Vegesna (nveges3@uic.edu)
+
 
 ## Pre-Requisites
 To use this project, install the required dependencies, download the datasets (Taxi_Trips.csv and chicago.geojson), and run the code in a Jupyter Notebook or your preferred Python IDE.
