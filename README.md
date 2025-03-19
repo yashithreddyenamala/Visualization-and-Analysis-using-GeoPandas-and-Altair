@@ -11,7 +11,7 @@ This project involves data visualization and analysis using GeoPandas and Altair
 To use this project, install the required dependencies, download the datasets (Taxi_Trips.csv and chicago.geojson), and run the code in a Jupyter Notebook or your preferred Python IDE.
 
 Before running the code, install the required libraries using the following command:
-~~~bash
+~~~python
 pip install geopandas altair pandas jupyter
 ~~~
 
@@ -24,13 +24,13 @@ Download the datasets required to do the tasks:
 
 ## Task 1: Data Preparation
 Import the necessary libraries and load the data:
-~~~bash
+~~~python
 import pandas as pd
 import geopandas as gpd
 import altair as alt
 from shapely.geometry import Point
 ~~~
-~~~bash
+~~~python
 df = pd.read_csv('data/Taxi_Trips.csv')
 geometry = [Point(xy) for xy in zip(df['Pickup Centroid Longitude'], df['Pickup Centroid Latitude'])]
 gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=4326).sample(1000)
@@ -38,19 +38,19 @@ gdf = gdf.rename(columns={"Trip Seconds": "Trip_Seconds", "Trip Miles": "Trip_Mi
 ~~~
 
 Note that we are renaming certain columns to remove white spaces. To display the first few rows:
-~~~bash
+~~~python
 gdf.head()
 ~~~
 
 
 ## Task 2: Data Joining and Cleaning
 Load the Chicago ZIP code boundaries dataset:
-~~~bash
+~~~python
 chicago = gpd.read_file('data/chicago.geojson')
 ~~~
 
 Perform a spatial join between taxi trip data and Chicago ZIP codes to aggregate fare data by ZIP code:
-~~~bash
+~~~python
 joined = gpd.sjoin(gdf, chicago, predicate='within')
 joined['Fare'] = pd.to_numeric(joined['Fare'], errors='coerce')
 joined = joined[['zip', 'Fare']]
@@ -60,14 +60,14 @@ print(joined.isna().sum())
 ~~~
 
 Merge the aggregated data back with the Chicago ZIP code boundaries:
-~~~bash
+~~~python
 merged = chicago.merge(joined, on='zip')
 ~~~
 
 
 ## Task 3: Creating Linked Views
 Create a basic linked view with scatter plots using Altair:
-~~~bash
+~~~python
 brush = alt.selection_interval()
 
 matrix = alt.Chart(gdf).mark_circle().add_params(brush).encode(
@@ -109,13 +109,13 @@ Each heatmap utilizes:
 - Brushing to allow interactive filtering across multiple heatmaps.
 
 A selection interval is defined to allow brushing, which highlights selected data points.
-~~~bash
+~~~python
 brush = alt.selection_interval()
 ~~~
 **Heatmap for Trip_Seconds**
 
 This heatmap visualizes trip duration data by color intensity.
-~~~bash
+~~~python
 heatmap_trip_seconds = alt.Chart(gdf).mark_rect().encode(
     x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),
     y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),
@@ -126,7 +126,7 @@ heatmap_trip_seconds = alt.Chart(gdf).mark_rect().encode(
 **Heatmap for Trip_Miles**
 
 This heatmap visualizes the trip distances by color intensity.
-~~~bash
+~~~python
 heatmap_trip_miles = alt.Chart(gdf).mark_rect().encode(
     x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),
     y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),
@@ -137,7 +137,7 @@ heatmap_trip_miles = alt.Chart(gdf).mark_rect().encode(
 **Heatmap for Fare**
 
 This heatmap visualizes fare amounts by color intensity.
-~~~bash
+~~~python
 heatmap_fare = alt.Chart(gdf).mark_rect().encode(
     x=alt.X('Pickup Centroid Longitude', bin=alt.Bin(maxbins=30)),
     y=alt.Y('Pickup Centroid Latitude', bin=alt.Bin(maxbins=30)),
@@ -148,7 +148,7 @@ heatmap_fare = alt.Chart(gdf).mark_rect().encode(
 **Combining Heatmaps**
 
 The three heatmaps are combined into a single visualization for side-by-side comparison.
-~~~bash
+~~~python
 heatmap_trip_seconds & heatmap_trip_miles & heatmap_fare
 ~~~
 
@@ -165,13 +165,13 @@ This visualization uses Altair's repeat feature to efficiently create a grid of 
 
 
 A selection interval is defined to allow brushing, which highlights selected data points.
-~~~bash
+~~~python
 brush = alt.selection_interval()
 ~~~
 **Heatmap with Repeated Variables**
 
 This heatmap visualizes multiple metrics by placing variables in both rows and columns.
-~~~bash
+~~~python
 heatmap = alt.Chart(gdf).mark_rect().encode(
     alt.X(alt.repeat("column"), bin=alt.Bin(maxbins=30)),
     alt.Y(alt.repeat("row"), bin=alt.Bin(maxbins=30)),
